@@ -17,7 +17,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     for i in 0..archive.len() {
         let mut file = archive.by_index(i)?;
-        let outpath = file.enclosed_name().ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Invalid file path"))?;
+        let outpath = file
+            .enclosed_name()
+            .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Invalid file path"))?
+            .to_owned(); // Clone the path here
 
         if file.name().ends_with('/') {
             println!("File {} extracted to \"{}\"", i, outpath.display());
@@ -29,7 +32,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
             let mut outfile = File::create(&outpath)?;
-            copy(&mut file, &mut outfile)?;
+            copy(&mut file, &mut outfile)?; // Now `file` is only borrowed here
 
             println!(
                 "File {} extracted to \"{}\" ({} bytes)",
